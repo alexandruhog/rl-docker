@@ -1,0 +1,55 @@
+version: '3.3'
+
+services:
+  database:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: testdb
+    ports:
+      - 5432:5432
+    volumes:
+      - data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app
+      - db
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: test@test.com
+      PGADMIN_DEFAULT_PASSWORD: oriceparola
+    ports:
+      - 3030:80
+    logging:
+      driver: none
+    networks: 
+      - db
+
+  backend:
+    image: axonedge/workshop:backend
+    ports: 
+      - 8080:8080
+    volumes:
+      - pictures:/poze
+    networks:
+      - app
+
+  frontend:
+    image: axonedge/workshop:frontend
+    depends_on:
+      - backend
+    ports: 
+      - 3000:3000
+    networks:
+      - app
+
+volumes:
+  data:
+  pictures:
+
+networks:
+  db:
+  app:
+
